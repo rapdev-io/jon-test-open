@@ -3,8 +3,6 @@ name: Reusable-test
 on:
   workflow_call:
 
-  workflow_dispatch:
-
 #run-name: ${{ github.event.inputs.name }} 
 jobs:  
   test-reusable:
