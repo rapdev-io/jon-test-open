@@ -36,7 +36,7 @@ jobs:
   
   test:
     name: test-job-name
-    if: ${{inputs.test == 'test'}}
+    if: always()
     needs: build 
     runs-on: ubuntu-latest
 
