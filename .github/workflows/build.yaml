@@ -21,6 +21,7 @@ jobs:
           echo test, and deploy your project.
   build:
     name: test-job-name
+    if: ${{inputs.test == 'test'}}
     runs-on: ubuntu-latest
     needs: build1
     steps:
@@ -35,7 +36,17 @@ jobs:
   
   test:
     name: test-job-name
+    if: ${{inputs.test == 'test'}}
     needs: build 
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run a one-line script
+        run: echo Hello, world!
+
+  test2:
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
