@@ -20,7 +20,7 @@ jobs:
           echo Add other actions to build,
           echo test, and deploy your project.
   build:
-    name: test-job-name
+    name: duplicate-job-name
     if: ${{inputs.test == 'test'}}
     runs-on: ubuntu-latest
     needs: build1
@@ -34,8 +34,8 @@ jobs:
           echo Add other actions to build,
           echo test, and deploy your project.
           
-  build:
-    name: test-job-name2
+  test:
+    name: duplicate-job-name-copy
     if: ${{inputs.test == 'test'}}
     needs: build 
     runs-on: ubuntu-latest
