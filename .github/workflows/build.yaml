@@ -35,7 +35,7 @@ jobs:
           echo test, and deploy your project.
           
   test:
-    name: duplicate-job-name-copy
+    name: duplicate-job-name
     if: ${{inputs.test == 'test'}}
     needs: build 
     runs-on: ubuntu-latest
