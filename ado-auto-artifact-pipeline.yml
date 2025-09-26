@@ -1,0 +1,74 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: 'Build'
+  jobs:
+  - job: 'Build'
+    steps:
+    - script: echo Build
+    - task: Maven@4
+      inputs:
+        mavenPomFile: 'pom.xml'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        testRunTitle: 'Unit Tests - RapDev'
+        javaHomeOption: 'JDKVersion'
+        mavenVersionOption: 'Default'
+        mavenAuthenticateFeed: false
+        effectivePomSkip: false
+        sonarQubeRunAnalysis: false
+        
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(Build.SourcesDirectory)'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'jon-devops-auto.war - AUTO'
+        publishLocation: 'Container'
+
+- stage: 'Test'
+  displayName: 'Test Display'
+  jobs:
+  - job: 'Unit_Tests'
+    steps:
+    - script: |
+        sleep 1
+
+- stage: 'UAT_Deploy'
+  jobs:
+  - job: 'UAT_Deploy'
+    steps:
+    - script: echo UAT Deploy
+    - task: ServiceNow-DevOps-Agent-Package-Registration@1
+      inputs:
+        connectedServiceName: 'dev229276-Jon - DevOps-ServiceNow DevOps Service Connection'
+        packageName: "Package - $(Build.BuildId)"
+        artifactsPayload: |
+          {
+              "artifacts": [
+              {
+                  "name": "jon-devops-auto.war - AUTO",
+                  "repositoryName": "Jon - DevOps",
+                  "version": "1.$(build.buildId)",
+                  "currentBuildInfo": "true"
+              }]
+          }
+  
+  - job: 'Production_Deploy'
+    pool: server
+    dependsOn: 'UAT_Deploy'
+    steps:
+    - task: ServiceNow-DevOps-Server-Change-Acceleration@1
+      inputs:
+        connectedServiceName: 'dev229276-Jon - DevOps-ServiceNow DevOps Service Connection'    
