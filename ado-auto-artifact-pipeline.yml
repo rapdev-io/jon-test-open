@@ -14,6 +14,7 @@ stages:
   - job: 'Build'
     steps:
     - script: echo Build
+    - script: sleep 20
     - task: Maven@4
       inputs:
         mavenPomFile: 'pom.xml'
@@ -37,19 +38,34 @@ stages:
         ArtifactName: 'jon-devops-auto.war - AUTO'
         publishLocation: 'Container'
 
-- stage: 'Test'
-  displayName: 'Test Display'
+- stage: DevDeploy
+  dependsOn: Build
+  condition: false
   jobs:
-  - job: 'Unit_Tests'
+  - job: 'DevDeploy'
     steps:
-    - script: |
-        sleep 1
+    - script: echo Dev Deploy
 
-- stage: 'UAT_Deploy'
+- stage: TestDeploy
+  dependsOn: DevDeploy
+  condition: false
   jobs:
-  - job: 'UAT_Deploy'
+  - job: 'DevDeploy'
     steps:
-    - script: echo UAT Deploy
+    - script: echo Test Deploy
+
+- stage: StageDeploy
+  dependsOn: Build
+  jobs:
+  - job: 'DevDeploy'
+    steps:
+    - script: echo Stage Deploy
+
+- stage: 'SNChange'
+  dependsOn: StageDeploy
+  jobs:
+  - job: 'SNPackageRegistration'
+    steps:
     - task: ServiceNow-DevOps-Agent-Package-Registration@1
       inputs:
         connectedServiceName: 'dev229276-Jon - DevOps-ServiceNow DevOps Service Connection'
@@ -59,15 +75,15 @@ stages:
               "artifacts": [
               {
                   "name": "jon-devops-auto.war - AUTO",
-                  "repositoryName": "Jon - DevOps",
+                  "repositoryName": "Auto Artifact",
                   "version": "1.$(build.buildId)",
                   "currentBuildInfo": "true"
               }]
           }
   
-  - job: 'Production_Deploy'
+  - job: 'SNChange'
     pool: server
-    dependsOn: 'UAT_Deploy'
+    dependsOn: 'SNPackageRegistration'
     steps:
     - task: ServiceNow-DevOps-Server-Change-Acceleration@1
       inputs:
