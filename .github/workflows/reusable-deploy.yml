@@ -13,7 +13,7 @@ jobs:
           echo "${{ github.job }}"
   deployment-gate:
     needs: test-reusable
-    environment: Prod1
+    environment: Prod2
     runs-on: ubuntu-latest
     steps:
       - name: script
