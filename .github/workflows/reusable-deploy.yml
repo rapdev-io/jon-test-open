@@ -1,0 +1,20 @@
+name: Reusable-Deploy
+
+on:
+  workflow_call:
+
+jobs:  
+  test-reusable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - name: script
+        run: |
+          echo "${{ github.job }}"
+  deployment-gate:
+    needs: test-reusable
+    environment: Prod1
+    runs-on: ubuntu-latest
+    steps:
+      - name: script
+        run: echo hello
